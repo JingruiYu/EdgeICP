@@ -43,8 +43,46 @@ void LoadDataset(const string &strFile, vector<string> &vstrcontourFilenames,
 
 cv::Mat getPCL(cv::Mat &Img)
 {
-    cv::Mat Pcl = Mat::zeros( Img.size(), CV_8UC3 );
-    //
+    
+    vector<Point> vPts;
+    for (size_t i = 0; i < Img.cols; i++)
+    {
+        for (size_t j = 0; j < Img.rows; j++)
+        {
+            cv::Vec3b rgb  = Img.at<cv::Vec3b>(i,j);
+            uchar r = rgb[0];
+            uchar g = rgb[1];
+            if (r+g > 250)
+            {
+                Point pt(i,j); 
+                vPts.push_back(pt);
+            }
+        }
+    }
+
+    cv::Mat Pcl = Mat::zeros( 6, vPts.size(), CV_32F );
+
+#ifdef Debug
+    cout << "vPts.size()" << vPts.size() << endl;
+    cout << "Pcl.size()" << Pcl.size() << endl;
+#endif
+
+    for (size_t i = 0; i < vPts.size(); i++)
+    {
+        Pcl.at<float>(0,i) = vPts[i].x;
+        Pcl.at<float>(1,i) = vPts[i].y;
+        Pcl.at<float>(2,i) = 1.0;
+        Pcl.at<float>(5,i) = 1.0;
+
+#ifdef Debug        
+        cout << "vPts[i]: " << vPts[i] << endl << endl;
+        cout << Pcl << endl;
+        
+        getchar();
+#endif
+
+    }
+    
 
     return Pcl.clone();
 }
@@ -89,8 +127,13 @@ int main(int argc, char const *argv[])
         double res;
         cv::Matx44d pose;
         cv::ppf_match_3d::ICP icp(100, 0.005f, 2.5f, 8);
+
+        cout << "refPcl.type():" << refPcl.type() << endl;
+        cout << "refPcl.size():" << refPcl.size() << endl;
+
         int isuc = icp.registerModelToScene(refPcl,curPcl,res,pose);
 
+        cout << " isuc: " << isuc << endl << " res: " << res << endl << " pose: " << pose << endl;
         //int isuc = cv::ppf_match_3d::ICP::registerModelToScene(refPcl,curPcl,res,pose);
 
         cv::Mat refPclNew = convert(refPcl,pose);

@@ -16,3 +16,7 @@ endif()
 
 add_executable(ICP ICP.cpp)
 target_link_libraries(ICP ${OpenCV_LIBS})
+
+
+add_executable(ppf_load_match ppf_load_match.cpp)
+target_link_libraries(ppf_load_match ${OpenCV_LIBS})
