@@ -45,6 +45,12 @@ cv::Mat getPCL(cv::Mat &Img)
 {
     cv::Mat Pcl = Mat::zeros( Img.size(), CV_8UC3 );
 
+    for (size_t i = 0; i < Img.; i++)
+    {
+        /* code */
+    }
+    
+
     return Pcl.clone();
 }
 
