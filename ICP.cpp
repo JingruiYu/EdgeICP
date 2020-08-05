@@ -10,6 +10,8 @@
 #include <opencv2/surface_matching.hpp>
 #include <opencv2/surface_matching/ppf_match_3d.hpp>
 
+// #define Debug
+
 using namespace std;
 using namespace cv;
 
@@ -43,16 +45,14 @@ void LoadDataset(const string &strFile, vector<string> &vstrcontourFilenames,
 
 cv::Mat getPCL(cv::Mat &Img)
 {
-    
     vector<Point> vPts;
     for (size_t i = 0; i < Img.cols; i++)
     {
         for (size_t j = 0; j < Img.rows; j++)
         {
-            cv::Vec3b rgb  = Img.at<cv::Vec3b>(i,j);
-            uchar r = rgb[0];
-            uchar g = rgb[1];
-            if (r+g > 250)
+            uchar rgb  = Img.at<uchar>(i,j);
+            
+            if (rgb > 250)
             {
                 Point pt(i,j); 
                 vPts.push_back(pt);
@@ -60,19 +60,27 @@ cv::Mat getPCL(cv::Mat &Img)
         }
     }
 
-    cv::Mat Pcl = Mat::zeros( 6, vPts.size(), CV_32F );
+    cv::Mat Pcl = Mat::zeros( vPts.size(), 6, CV_32F );
 
 #ifdef Debug
+    cv::Mat tmpimg = Mat::zeros( Img.size(), Img.type());
+    for (size_t i = 0; i < vPts.size(); i++)
+    {
+        tmpimg.at<uchar>(vPts[i].x,vPts[i].y) = 255;
+    }
+    imshow("tmpImg", tmpimg);
+    waitKey(0);
+
     cout << "vPts.size()" << vPts.size() << endl;
     cout << "Pcl.size()" << Pcl.size() << endl;
 #endif
 
     for (size_t i = 0; i < vPts.size(); i++)
     {
-        Pcl.at<float>(0,i) = vPts[i].x;
-        Pcl.at<float>(1,i) = vPts[i].y;
-        Pcl.at<float>(2,i) = 1.0;
-        Pcl.at<float>(5,i) = 1.0;
+        Pcl.at<float>(i,0) = vPts[i].x;
+        Pcl.at<float>(i,1) = vPts[i].y;
+        Pcl.at<float>(i,2) = 1.0;
+        Pcl.at<float>(i,5) = 1.0;
 
 #ifdef Debug        
         cout << "vPts[i]: " << vPts[i] << endl << endl;
@@ -83,24 +91,79 @@ cv::Mat getPCL(cv::Mat &Img)
 
     }
     
-
     return Pcl.clone();
 }
 
 
 cv::Mat convert(cv::Mat &Pcl, cv::Matx44d &pose)
 {
-    cv::Mat PclNew = Mat::zeros( Pcl.size(), CV_8UC3 );
+    cv::Mat Tpose = cv::Mat::zeros(4,4, CV_32F);
+
+#ifdef Debug
+    cout << "Tpose: " << endl << Tpose << endl;
+#endif
+
+    for (size_t i = 0; i < 4; i++)
+    {
+        for (size_t j = 0; j < 4; j++)
+        {
+            Tpose.at<float>(i,j) = pose(i,j);
+        }
+    }
+
+#ifdef Debug
+    cout << "Tpose: " << endl << Tpose << endl;
+#endif
+
+    cv::Mat PclNew = cv::Mat::zeros(Pcl.size(), Pcl.type());
+    Pcl.copyTo(PclNew);
+    for (size_t i = 0; i < Pcl.rows; i++)
+    {
+        cv::Mat subPt = Mat::zeros( 1, 4, CV_32F );
+        subPt.at<float>(0,0) = Pcl.at<float>(i,0);
+        subPt.at<float>(0,1) = Pcl.at<float>(i,1);
+        subPt.at<float>(0,2) = Pcl.at<float>(i,2);
+
+#ifdef Debug
+        cout << " subPt: " << subPt << endl;
+        cout << " pose: " << pose << endl;
+#endif
+        
+        subPt = subPt * Tpose;
+
+#ifdef Debug
+        cout << " subPt: " << subPt << endl;
+        getchar(); 
+#endif
+
+        PclNew.at<float>(i,0) = subPt.at<float>(0,0);
+        PclNew.at<float>(i,1) = subPt.at<float>(0,1);
+        PclNew.at<float>(i,2) = subPt.at<float>(0,2);
+    }  
 
     return PclNew.clone();
 }
 
 
-void showResult(cv::Mat &refPcl, cv::Mat &curPcl, cv::Mat &refPclNew, cv::Matx44d &pose)
+void showResult(cv::Mat &curImg, cv::Mat &refPcl, cv::Mat &curPcl, cv::Mat &refPclNew, cv::Matx44d &pose)
 {
-    imshow("refPcl",refPcl);
-    imshow("refPcl",curPcl);
-    imshow("refPcl",refPclNew);
+    cv::Mat drawOldMat = cv::Mat::zeros(curImg.size(), curImg.type());
+    cv::Mat drawNewMat = cv::Mat::zeros(curImg.size(), curImg.type());
+
+    for (size_t i = 0; i < refPcl.rows; i++)
+    {
+        drawOldMat.at<uchar>(refPcl.at<float>(i,0),refPcl.at<float>(i,1)) = 255;
+        drawNewMat.at<uchar>(refPclNew.at<float>(i,0),refPclNew.at<float>(i,1)) = 255;
+    }
+    
+
+    
+
+
+
+    imshow("refOldPcl",drawOldMat);
+    imshow("refNewPcl",drawNewMat);
+    imshow("curImg",curImg);
 
     waitKey(0);
 }
@@ -121,24 +184,25 @@ int main(int argc, char const *argv[])
     for (size_t i = 1; i < vstrcontourFilenames.size(); i++)
     {
         cv::Mat curImg = imread(string(argv[1])+"/"+vstrcontourFilenames[i],CV_LOAD_IMAGE_UNCHANGED);
-
         cv::Mat curPcl = getPCL(curImg);
 
         double res;
         cv::Matx44d pose;
         cv::ppf_match_3d::ICP icp(100, 0.005f, 2.5f, 8);
 
-        cout << "refPcl.type():" << refPcl.type() << endl;
-        cout << "refPcl.size():" << refPcl.size() << endl;
+        // cout << "refPcl.type():" << refPcl.type() << endl;
+        // cout << "refPcl.size():" << refPcl.size() << endl;
 
         int isuc = icp.registerModelToScene(refPcl,curPcl,res,pose);
 
-        cout << " isuc: " << isuc << endl << " res: " << res << endl << " pose: " << pose << endl;
+        cout << " isuc: " << isuc << endl;
+        cout << " res: " << res << endl;
+        cout << " pose: " << pose << endl;
         //int isuc = cv::ppf_match_3d::ICP::registerModelToScene(refPcl,curPcl,res,pose);
 
         cv::Mat refPclNew = convert(refPcl,pose);
 
-        showResult(refPcl, curPcl, refPclNew, pose);
+        showResult(curImg, refPcl, curPcl, refPclNew, pose);
 
         refImg = curImg.clone();
         refPcl = curPcl.clone();

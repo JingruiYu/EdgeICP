@@ -132,10 +132,21 @@ int main(int argc, char** argv)
     ICP icp(100, 0.005f, 2.5f, 8);
     int64 t1 = cv::getTickCount();
     
-    cout << pc.type() << endl;
+    cout << "pc.type() : " << pc.type() << endl;
+    cout << "pcTest.type() : " << pcTest.type() << endl;
+    cout << "pc.size() : " << pc.size() << endl;
+    cout << "pcTest.size() : " << pcTest.size() << endl;
+    cout << pc <<endl;
+
     // Register for all selected poses
     cout << endl << "Performing ICP on " << N << " poses..." << endl;
     icp.registerModelToScene(pc, pcTest, resultsSub);
+
+    double res;
+    cv::Matx44d pose;
+    int isuc = icp.registerModelToScene(pc,pcTest,res,pose);
+    cout << endl << " isuc : " << isuc << " res : " << res << endl << " pose: " << pose << endl;
+
     int64 t2 = cv::getTickCount();
     
     cout << endl << "ICP Elapsed Time " <<
