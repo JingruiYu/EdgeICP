@@ -132,6 +132,7 @@ int main(int argc, char** argv)
     ICP icp(100, 0.005f, 2.5f, 8);
     int64 t1 = cv::getTickCount();
     
+    cout << pc.type() << endl;
     // Register for all selected poses
     cout << endl << "Performing ICP on " << N << " poses..." << endl;
     icp.registerModelToScene(pc, pcTest, resultsSub);
