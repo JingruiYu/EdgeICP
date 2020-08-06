@@ -156,11 +156,6 @@ void showResult(cv::Mat &curImg, cv::Mat &refPcl, cv::Mat &curPcl, cv::Mat &refP
         drawNewMat.at<uchar>(refPclNew.at<float>(i,0),refPclNew.at<float>(i,1)) = 255;
     }
     
-
-    
-
-
-
     imshow("refOldPcl",drawOldMat);
     imshow("refNewPcl",drawNewMat);
     imshow("curImg",curImg);
@@ -169,8 +164,144 @@ void showResult(cv::Mat &curImg, cv::Mat &refPcl, cv::Mat &curPcl, cv::Mat &refP
 }
 
 
+void test()
+{
+    cv::Mat Tpose = cv::Mat::eye(4,4, CV_32F);
+    // Tpose.at<float>(0,3) = 5.0;
+    // Tpose.at<float>(1,3) = 15.0;
+    // Tpose.at<float>(2,3) = 50.0;
+    cout << "Tpose: " << Tpose << endl;
+
+    int pcsize = 1000;
+    cv::Mat refPcl = Mat::zeros( pcsize, 6, CV_32F );
+    cv::Mat curPcl = Mat::zeros( pcsize, 6, CV_32F );
+
+    for (int i = 0; i < pcsize; i++)
+    {
+        cv::Mat pt = cv::Mat::zeros(1,4, CV_32F);
+        pt.at<float>(0,0) = 1 * i + 0.1;
+        pt.at<float>(0,1) = 1 * i + 0.3;
+        pt.at<float>(0,2) = 1.0;
+
+        cv::Mat npt = pt*Tpose;
+
+        refPcl.at<float>(i,0) = pt.at<float>(0,0);
+        refPcl.at<float>(i,1) = pt.at<float>(0,1);
+        refPcl.at<float>(i,2) = pt.at<float>(0,2);
+        refPcl.at<float>(i,5) = 1.0;
+
+        curPcl.at<float>(i,0) = npt.at<float>(0,0);
+        curPcl.at<float>(i,1) = npt.at<float>(0,1);
+        curPcl.at<float>(i,2) = npt.at<float>(0,2);
+        curPcl.at<float>(i,5) = 1.0;
+    }
+
+    cout << "refPcl.type():" << refPcl.type() << endl;
+    cout << "refPcl.size():" << refPcl.size() << endl;
+    // cout << refPcl << endl;
+
+    double res;
+    cv::Matx44d pose;
+    cv::ppf_match_3d::ICP icp(100, 0.005f, 2.5f, 8);
+
+    int isuc = icp.registerModelToScene(refPcl,curPcl,res,pose);
+
+    cout << " isuc: " << isuc << endl;
+    cout << " res: " << res << endl;
+    cout << " pose: " << pose << endl;
+}
+
+void test2()
+{
+    // cv::Mat pc = imread("/home/yujr/ICP/pc.jpg",CV_LOAD_IMAGE_UNCHANGED);
+    // cv::Mat pcTest = imread("/home/yujr/ICP/pcTest.jpg",CV_LOAD_IMAGE_UNCHANGED);
+
+    FileStorage fs("pc.xml", FileStorage::READ);
+    Mat pc;
+    fs["pcl"] >> pc;
+
+    FileStorage fss("pcTest.xml", FileStorage::READ);
+    Mat pcTest;
+    fss["pclTest"] >> pcTest;
+
+    cout << "pc.type():" << pc.type() << endl;
+    cout << "pcTest.type():" << pcTest.type() << endl;
+    cout << "pc.size():" << pc.size() << endl;
+    cout << "pcTest.size():" << pcTest.size() << endl;
+
+    cv::Mat refPcl,curPcl;
+    pc.convertTo(refPcl, CV_32F);
+    pcTest.convertTo(curPcl, CV_32F);
+    
+    cout << "refPcl.type():" << refPcl.type() << endl;
+    cout << "curPcl.type():" << curPcl.type() << endl;
+    cout << "refPcl.size():" << refPcl.size() << endl;
+    cout << "curPcl.size():" << curPcl.size() << endl;
+
+    for (size_t i = 0; i < refPcl.rows; i++)
+    {
+        refPcl.at<float>(i,3) = 0.0;
+        refPcl.at<float>(i,4) = 0.0;
+        refPcl.at<float>(i,5) = 1.0;
+    }
+    
+    for (size_t i = 0; i < curPcl.rows; i++)
+    {
+        curPcl.at<float>(i,3) = 0.0;
+        curPcl.at<float>(i,4) = 0.0;
+        curPcl.at<float>(i,5) = 1.0;
+    }
+
+    cv::Mat rp,cp;
+    refPcl.rowRange(0,100).colRange(0,6).copyTo(rp);
+    curPcl.rowRange(0,100).colRange(0,6).copyTo(cp);
+
+    for (int i = 0; i < rp.rows; i++)
+    {
+        rp.at<float>(i,0) = i*-0.33;
+        cp.at<float>(i,0) = i*-0.33;
+        rp.at<float>(i,1) = i*2.78;
+        cp.at<float>(i,1) = i*2.78;
+        rp.at<float>(i,2) = 1.0;
+        cp.at<float>(i,2) = 1.0;
+    }
+    
+    cout << pc.row(32) << endl;
+    cout << refPcl.row(32) << endl;
+    cout << rp.row(32) << endl;
+
+    cout << "rp.type():" << rp.type() << endl;
+    cout << "cp.type():" << cp.type() << endl;
+    cout << "rp.size():" << rp.size() << endl;
+    cout << "cp.size():" << cp.size() << endl;
+
+    double res;
+    cv::Matx44d pose;
+    cv::ppf_match_3d::ICP icp(100, 0.005f, 2.5f, 8);
+
+    int isuc = icp.registerModelToScene(refPcl,refPcl,res,pose);
+
+    cout << " isuc: " << isuc << endl;
+    cout << " res: " << res << endl;
+    cout << " pose: " << pose << endl;
+
+    // cout << pc << endl;
+    vector<ppf_match_3d::Pose3DPtr> resultsSub;
+    icp.registerModelToScene(refPcl, curPcl, resultsSub);
+    for (size_t i=0; i<resultsSub.size(); i++)
+    {
+        ppf_match_3d::Pose3DPtr result = resultsSub[i];
+        cout << "Pose Result " << i << endl;
+        result->printPose();
+    }
+}
+
 int main(int argc, char const *argv[])
 {
+
+    // test();
+    test2();
+
     vector<string> vstrcontourFilenames;
 	vector<double> vTimestamps;
 	vector<cv::Vec3d> vodomPose;
@@ -181,7 +312,7 @@ int main(int argc, char const *argv[])
 
     cv::Mat refImg = imread(string(argv[1])+"/"+vstrcontourFilenames[0],CV_LOAD_IMAGE_UNCHANGED);
     cv::Mat refPcl = getPCL(refImg);
-    for (size_t i = 1; i < vstrcontourFilenames.size(); i++)
+    for (size_t i = 1; i < 0; i++) // vstrcontourFilenames.size()
     {
         cv::Mat curImg = imread(string(argv[1])+"/"+vstrcontourFilenames[i],CV_LOAD_IMAGE_UNCHANGED);
         cv::Mat curPcl = getPCL(curImg);
@@ -190,15 +321,11 @@ int main(int argc, char const *argv[])
         cv::Matx44d pose;
         cv::ppf_match_3d::ICP icp(100, 0.005f, 2.5f, 8);
 
-        // cout << "refPcl.type():" << refPcl.type() << endl;
-        // cout << "refPcl.size():" << refPcl.size() << endl;
-
         int isuc = icp.registerModelToScene(refPcl,curPcl,res,pose);
 
         cout << " isuc: " << isuc << endl;
         cout << " res: " << res << endl;
         cout << " pose: " << pose << endl;
-        //int isuc = cv::ppf_match_3d::ICP::registerModelToScene(refPcl,curPcl,res,pose);
 
         cv::Mat refPclNew = convert(refPcl,pose);
 
@@ -206,10 +333,6 @@ int main(int argc, char const *argv[])
 
         refImg = curImg.clone();
         refPcl = curPcl.clone();
-        
-        
-        // https://github.com/opencv/opencv_contrib/blob/master/modules/surface_matching/samples/ppf_load_match.cpp
-        // https://docs.opencv.org/3.4.5/dc/d9b/classcv_1_1ppf__match__3d_1_1ICP.html#accd9744cedf9cd9cd175d2c5bd77951e
     }
     
 

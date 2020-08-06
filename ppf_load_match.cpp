@@ -38,6 +38,7 @@
 //
 // Author: Tolga Birdal <tbirdal AT gmail.com>
 
+#include <opencv2/opencv.hpp>
 #include "opencv2/surface_matching.hpp"
 #include <iostream>
 #include "opencv2/surface_matching/ppf_helpers.hpp"
@@ -89,6 +90,9 @@ int main(int argc, char** argv)
     
     Mat pc = loadPLYSimple(modelFileName.c_str(), 1);
     
+    cout << "pc.type(): " << pc.type() << endl;
+    cout << "pc.size(): " << pc.size() << endl;
+
     // Now train the model
     cout << "Training..." << endl;
     int64 tick1 = cv::getTickCount();
@@ -126,25 +130,29 @@ int main(int argc, char** argv)
              << N << " to the number of matches found: " << results_size << endl;
         N = results_size;
     }
-    vector<Pose3DPtr> resultsSub(results.begin(),results.begin()+N);
+    vector<Pose3DPtr> resultsSub(results.begin(),results.begin()+N); // This vector need be resize, or it will be empty
     
     // Create an instance of ICP
     ICP icp(100, 0.005f, 2.5f, 8);
     int64 t1 = cv::getTickCount();
     
-    cout << "pc.type() : " << pc.type() << endl;
-    cout << "pcTest.type() : " << pcTest.type() << endl;
-    cout << "pc.size() : " << pc.size() << endl;
-    cout << "pcTest.size() : " << pcTest.size() << endl;
-    cout << pc <<endl;
+    FileStorage fs("pc.xml", FileStorage::WRITE);
+    fs << "pcl" << pc;
+    fs.release();
 
-    // Register for all selected poses
+    FileStorage fss("pcTest.xml", FileStorage::WRITE);
+    fss << "pclTest" << pcTest;
+    fss.release();
+
+    // If want to use the same ICP, the ICP also need to regist and match in the front, or its res will be wrong.
+
     cout << endl << "Performing ICP on " << N << " poses..." << endl;
     icp.registerModelToScene(pc, pcTest, resultsSub);
 
     double res;
     cv::Matx44d pose;
     int isuc = icp.registerModelToScene(pc,pcTest,res,pose);
+    cout << " ..... ...... " << endl;
     cout << endl << " isuc : " << isuc << " res : " << res << endl << " pose: " << pose << endl;
 
     int64 t2 = cv::getTickCount();
@@ -165,7 +173,6 @@ int main(int argc, char** argv)
             writePLY(pct, "para6700PCTrans.ply");
         }
     }
-    
     return 0;
     
 }
