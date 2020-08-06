@@ -22,7 +22,6 @@ add_definitions(${PCL_DEFINITIONS})
 add_executable(ICP ICP.cpp)
 target_link_libraries(ICP ${OpenCV_LIBS})
 
-
 add_executable(ppf_load_match ppf_load_match.cpp)
 target_link_libraries(ppf_load_match ${OpenCV_LIBS})
 
@@ -31,3 +30,7 @@ target_link_libraries (interactive_icp ${PCL_LIBRARIES})
 
 add_executable (pcl_ICP pcl_ICP.cpp)
 target_link_libraries (pcl_ICP ${PCL_LIBRARIES})
+
+add_executable (usingPcl usingPcl.cpp)
+target_link_libraries (usingPcl ${PCL_LIBRARIES})
+target_link_libraries (usingPcl ${OpenCV_LIBS})
