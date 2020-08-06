@@ -13,6 +13,11 @@ endif()
 # include_directories(${CMAKE_INCLUDE_DIRECTORIES}
 # ${EIGEN3_INCLUDE_DIR}
 # )
+find_package(PCL 1.5 REQUIRED)
+
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 add_executable(ICP ICP.cpp)
 target_link_libraries(ICP ${OpenCV_LIBS})
@@ -20,3 +25,9 @@ target_link_libraries(ICP ${OpenCV_LIBS})
 
 add_executable(ppf_load_match ppf_load_match.cpp)
 target_link_libraries(ppf_load_match ${OpenCV_LIBS})
+
+add_executable (interactive_icp interactive_icp.cpp)
+target_link_libraries (interactive_icp ${PCL_LIBRARIES})
+
+add_executable (pcl_ICP pcl_ICP.cpp)
+target_link_libraries (pcl_ICP ${PCL_LIBRARIES})
