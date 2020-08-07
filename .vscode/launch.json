@@ -8,8 +8,8 @@
             "name": "gcc build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/pcl_ICP", //"${workspaceFolder}/build/ICP", //"${workspaceFolder}/build/ppf_load_match", //"${workspaceFolder}/build/interactive_icp"
-            "args": ["/home/yujr/ICP/example_data/monkey.ply","10"],//["/home/yujr/ICP/Data/saic_new_birdview3"], //["/home/yujr/ICP/data/parasaurolophus_6700.ply","/home/yujr/ICP/data/parasaurolophus_low_normals2.ply"], //["/home/yujr/ICP/example_data/monkey.ply","10"],
+            "program": "${workspaceFolder}/build/interactive_icp", //"${workspaceFolder}/build/usingPcl", //"${workspaceFolder}/build/ICP", //"${workspaceFolder}/build/ppf_load_match", //"${workspaceFolder}/build/interactive_icp"
+            "args": ["/home/yujr/ICP/example_data/monkey.ply","10","1.jpg","2.jpg"],//["/home/yujr/ICP/Data/saic_new_birdview3"], //["/home/yujr/ICP/data/parasaurolophus_6700.ply","/home/yujr/ICP/data/parasaurolophus_low_normals2.ply"], //["/home/yujr/ICP/example_data/monkey.ply","10"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
