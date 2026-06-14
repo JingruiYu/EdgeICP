@@ -12,6 +12,7 @@
 ## Contents
 
 - [Overview](#english)
+- [Visual overview](#visual-overview)
 - [Repository structure](#repository-structure)
 - [Related publication](#related-publication)
 - [Citation](#citation)
@@ -35,6 +36,12 @@ Point-feature matching is not the only way to estimate motion. In driving and ro
 - Align observed contours with reference contours.
 - Estimate relative pose with ICP-style iterative optimization.
 - Use the implementation as a testbed for geometric localization experiments.
+
+## Visual overview
+
+<p align="center">
+  <img src="assets/overview.svg" width="820" alt="Edge ICP pose estimation workflow diagram" />
+</p>
 
 ## Repository structure
 
