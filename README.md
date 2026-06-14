@@ -36,6 +36,15 @@ Point-feature matching is not the only way to estimate motion. In driving and ro
 
 `ICP`, `edge alignment`, `contour matching`, `pose estimation`, `visual localization`, `BEV`, `autonomous driving`, `OpenCV`, `PCL`, `C++`
 
+## Related publication
+
+This repository is an experimental extension inspired by the following paper:
+
+- **ViLiVO: Virtual LiDAR-Visual Odometry for an Autonomous Vehicle with a Multi-Camera System**  
+  IEEE: https://ieeexplore.ieee.org/document/8968484/
+
+It is **not** the original implementation of ViLiVO. The repository focuses on edge / contour based pose-estimation experiments that extend related geometric-localization ideas.
+
 ## Project status
 
 This is an experimental repository. It may require dependency and dataset-path adaptation before being used in a modern environment.
@@ -51,3 +60,12 @@ This is an experimental repository. It may require dependency and dataset-path a
 ## 关键词
 
 ICP、边缘匹配、轮廓匹配、位姿估计、视觉定位、BEV、自动驾驶、OpenCV、PCL、C++。
+
+## 相关论文
+
+该仓库是受以下论文启发的实验性延伸：
+
+- **ViLiVO: Virtual LiDAR-Visual Odometry for an Autonomous Vehicle with a Multi-Camera System**  
+  IEEE: https://ieeexplore.ieee.org/document/8968484/
+
+需要注意：该仓库**不是** ViLiVO 的原始实现，而是围绕边缘 / 轮廓约束位姿估计做的延伸性实验。
