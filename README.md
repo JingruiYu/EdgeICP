@@ -1,44 +1,53 @@
 # Edge ICP
 
-An experimental C++ implementation for pose estimation using **edge alignment** and ICP-style optimization.
+[中文](#中文说明) | [English](#english)
 
-This repository is part of my earlier visual localization / autonomous-driving perception experiments. It investigates whether edge contours in bird's-eye-view or image-space representations can provide useful geometric constraints for pose estimation.
+## English
+
+An experimental C++ project for pose estimation using **edge / contour alignment** and **ICP-style iterative optimization**.
+
+The project explores whether image edges, BEV contours, road boundaries, and other geometric structures can provide useful constraints for localization.
 
 ## Motivation
 
-In driving scenes, lane markings, road boundaries, curbs, and object contours often provide strong geometric cues. Instead of relying only on point features, this project explores edge-based alignment for relative pose estimation.
+Point-feature matching is not the only way to estimate motion. In driving and robotics scenes, contours such as lane markings, curbs, road boundaries, and object edges can also provide strong geometric information. Edge-based alignment can be useful when texture features are weak or unstable.
 
 ## Main ideas
 
-- Extract edge / contour observations from image or BEV data.
-- Align edge observations with reference contours.
-- Estimate pose through ICP-style iterative optimization.
-- Use the project as a testbed for geometric localization experiments.
-
-## Technical keywords
-
-- ICP
-- Edge alignment
-- Pose estimation
-- Bird's-eye view
-- Visual localization
-- Autonomous driving
-- C++ / OpenCV
+- Extract edge or contour observations from image / BEV data.
+- Align observed contours with reference contours.
+- Estimate relative pose with ICP-style iterative optimization.
+- Use the implementation as a testbed for geometric localization experiments.
 
 ## Repository structure
 
 ```text
 .
 ├── Data/                     # Historical experiment data
+├── ICP.cpp
+├── interactive_icp.cpp
+├── pcl_ICP.cpp
+├── usingPcl.cpp
 ├── CMakeLists.txt
 └── README.md
 ```
 
-## Notes
+## Keywords
 
-This is a historical experimental repository and may not be plug-and-play on a modern environment. I keep it public as a reference for my earlier work in geometric localization and robotics perception.
+`ICP`, `edge alignment`, `contour matching`, `pose estimation`, `visual localization`, `BEV`, `autonomous driving`, `OpenCV`, `PCL`, `C++`
 
-For my more recent related work, see:
+## Project status
 
-- [pyCuSFM: CUDA-accelerated Structure-from-Motion](https://github.com/nvidia-isaac/pyCuSFM)
-- [NVIDIA Isaac Neural Reconstruction](https://docs.nvidia.com/nurec/robotics/neural_reconstruction_stereo.html)
+This is an experimental repository. It may require dependency and dataset-path adaptation before being used in a modern environment.
+
+---
+
+## 中文说明
+
+这是一个基于 **C++** 的边缘 / 轮廓匹配实验项目，主要探索如何利用 **ICP 风格的迭代优化** 做位姿估计。
+
+项目关注道路边界、车道线、物体轮廓、BEV 边缘等几何结构在视觉定位中的作用，适合作为边缘约束、轮廓匹配、几何定位实验的参考。
+
+## 关键词
+
+ICP、边缘匹配、轮廓匹配、位姿估计、视觉定位、BEV、自动驾驶、OpenCV、PCL、C++。
