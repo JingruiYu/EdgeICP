@@ -13,6 +13,7 @@
 
 - [Overview](#english)
 - [Visual overview](#visual-overview)
+- [Example results](#example-results)
 - [Repository structure](#repository-structure)
 - [Related publication](#related-publication)
 - [Citation](#citation)
@@ -42,6 +43,16 @@ Point-feature matching is not the only way to estimate motion. In driving and ro
 <p align="center">
   <img src="assets/overview.svg" width="820" alt="Edge ICP pose estimation workflow diagram" />
 </p>
+
+## Example results
+
+<p align="center">
+  <img src="Data/saic_new_birdview3/contourICP/1550135938.446486.jpg" width="240" alt="Contour ICP example frame 1" />
+  <img src="Data/saic_new_birdview3/contourICP/1550135947.319275.jpg" width="240" alt="Contour ICP example frame 2" />
+  <img src="Data/saic_new_birdview3/contourICP/1550136032.597013.jpg" width="240" alt="Contour ICP example frame 3" />
+</p>
+
+The repository includes contour-alignment visualizations from BEV-style frames, illustrating the edge / contour inputs used by the ICP-style pose-estimation experiments.
 
 ## Repository structure
 
