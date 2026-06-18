@@ -14,12 +14,13 @@
 - [Overview](#english)
 - [Visual overview](#visual-overview)
 - [Example results](#example-results)
+- [Build](#build)
+- [Usage](#usage)
 - [Repository structure](#repository-structure)
 - [Related publication](#related-publication)
 - [Citation](#citation)
 - [License](#license)
 - [中文说明](#中文说明)
-
 
 ## English
 
@@ -33,10 +34,10 @@ Point-feature matching is not the only way to estimate motion. In driving and ro
 
 ## Main ideas
 
-- Extract edge or contour observations from image / BEV data.
-- Align observed contours with reference contours.
-- Estimate relative pose with ICP-style iterative optimization.
-- Use the implementation as a testbed for geometric localization experiments.
+- Convert BEV contour images into lightweight 2D point clouds.
+- Align consecutive contour point clouds with ICP.
+- Estimate frame-to-frame relative motion from geometric contour constraints.
+- Keep a small runnable sample sequence for public demonstration and reproducibility.
 
 ## Visual overview
 
@@ -47,29 +48,71 @@ Point-feature matching is not the only way to estimate motion. In driving and ro
 ## Example results
 
 <p align="center">
-  <img src="Data/saic_new_birdview3/contourICP/1550135938.446486.jpg" width="240" alt="Contour ICP example frame 1" />
-  <img src="Data/saic_new_birdview3/contourICP/1550135947.319275.jpg" width="240" alt="Contour ICP example frame 2" />
-  <img src="Data/saic_new_birdview3/contourICP/1550136032.597013.jpg" width="240" alt="Contour ICP example frame 3" />
+  <img src="examples/contour_sequence/contours/1550135938.446486.jpg" width="240" alt="Contour ICP example frame 1" />
+  <img src="examples/contour_sequence/contours/1550135940.141473.jpg" width="240" alt="Contour ICP example frame 2" />
+  <img src="examples/contour_sequence/contours/1550135941.736232.jpg" width="240" alt="Contour ICP example frame 3" />
 </p>
 
-The repository includes contour-alignment visualizations from BEV-style frames, illustrating the edge / contour inputs used by the ICP-style pose-estimation experiments.
+The repository includes a compact 20-frame contour sequence under [`examples/contour_sequence`](examples/contour_sequence), enough to run a short pairwise ICP demonstration without keeping the original large experimental dump.
+
+## Build
+
+Dependencies:
+
+- CMake >= 3.10
+- C++11 compiler
+- OpenCV
+```bash
+mkdir -p build
+cd build
+cmake ..
+make -j
+```
+
+## Usage
+
+Run the contour ICP demo on the bundled sample sequence:
+
+```bash
+./build/contour_icp examples/contour_sequence 5
+```
+
+Arguments:
+
+```text
+contour_icp <dataset_directory> [max_pairs]
+```
+
+The dataset directory should contain:
+
+```text
+associate.txt
+contours/*.jpg
+```
+
+Each `associate.txt` line follows:
+
+```text
+timestamp odometry_x odometry_y odometry_yaw contour_image_name
+```
 
 ## Repository structure
 
 ```text
 .
-├── Data/                     # Historical experiment data
-├── ICP.cpp
-├── interactive_icp.cpp
-├── pcl_ICP.cpp
-├── usingPcl.cpp
+├── assets/                    # README visual overview
+├── examples/contour_sequence/ # 20-frame public sample sequence
+├── src/contour_icp.cpp        # Main contour-to-point-cloud + ICP demo
 ├── CMakeLists.txt
+├── CITATION.cff
+├── LICENSE
+├── NOTICE
 └── README.md
 ```
 
 ## Keywords
 
-`ICP`, `edge alignment`, `contour matching`, `pose estimation`, `visual localization`, `BEV`, `autonomous driving`, `OpenCV`, `PCL`, `C++`
+`ICP`, `edge alignment`, `contour matching`, `pose estimation`, `visual localization`, `BEV`, `autonomous driving`, `OpenCV`, `C++`
 
 ## Related publication
 
@@ -81,8 +124,7 @@ It is **not** the original implementation of ViLiVO. The repository focuses on e
 
 ## Project status
 
-This is an experimental repository. It may require dependency and dataset-path adaptation before being used in a modern environment.
-
+This is an experimental repository. It has been cleaned into a small public-facing demo rather than a full research codebase.
 
 ## Citation
 
@@ -98,11 +140,22 @@ This repository is released under the [Apache License 2.0](LICENSE). Please reta
 
 这是一个基于 **C++** 的边缘 / 轮廓匹配实验项目，主要探索如何利用 **ICP 风格的迭代优化** 做位姿估计。
 
-项目关注道路边界、车道线、物体轮廓、BEV 边缘等几何结构在视觉定位中的作用，适合作为边缘约束、轮廓匹配、几何定位实验的参考。
+项目关注道路边界、车道线、物体轮廓、BEV 边缘等几何结构在视觉定位中的作用。当前版本已经整理为一个轻量 public demo：保留一个主程序和 20 帧示例轮廓序列，便于快速理解和运行。
+
+## 构建与运行
+
+```bash
+mkdir -p build
+cd build
+cmake ..
+make -j
+
+./build/contour_icp examples/contour_sequence 5
+```
 
 ## 关键词
 
-ICP、边缘匹配、轮廓匹配、位姿估计、视觉定位、BEV、自动驾驶、OpenCV、PCL、C++。
+ICP、边缘匹配、轮廓匹配、位姿估计、视觉定位、BEV、自动驾驶、OpenCV、C++。
 
 ## 相关论文
 
